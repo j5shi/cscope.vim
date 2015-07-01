@@ -1,4 +1,4 @@
-" File: tagscope.vim
+" File: cscope.vim
 " Author: Jia Shi <j5shi at live dot com>
 " Last Modified: 7/1/2015 9:45:00 AM
 " Copyright: Copyright (C) 2015 Jia Shi 

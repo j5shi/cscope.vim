@@ -1,6 +1,5 @@
 # Introduction
-Tagscope(new name for this plugin, since cscope.vim is used too widely.) is a
-smart cscope helper for vim.
+Cscope.vim is a smart cscope wrapper for vim.
 
 It will try to find a proper cscope database for current file, then connect to
 it. If there is no proper cscope database for current file, you are prompted to
@@ -17,7 +16,7 @@ need not take care of anything about cscope database.
 When you have a file edited/added in those folders for which cscope databases
 have been created, cscove will automatically update the corresponding database.
 
-Tagscope frees you from creating/connecting/updating cscope database, let you
+Cscope frees you from creating/connecting/updating cscope database, let you
 focus on code browsing.
 
 # Example settings
