@@ -126,7 +126,7 @@ Use this option to toggle messages for database updated.
 
                                                                 *'g:cscope_cmd'*
 Use the option to specify the path to cscope excutalbe, if it is not in PATH.
-  let g:cscope_cmd = '/home/brook/bin/cscope'
+  let g:cscope_cmd = '/home/j5shi/bin/cscope'
 
                                                                 *'g:cscope_split_threshold'*
 Specify a number. If total files found for a directory exceeds it, then a

@@ -1,5 +1,8 @@
-"    Copyright: Copyright (C) 2012-2015 Brook Hong
-"    License: The MIT License
+" File: tagscope.vim
+" Author: Jia Shi <j5shi at live dot com>
+" Last Modified: 7/1/2015 9:45:00 AM
+" Copyright: Copyright (C) 2015 Jia Shi 
+" License: The MIT License
 "
 let s:cscope_vim_db_dir = substitute($HOME,'\\','/','g')."/.cscope.vim"
 let s:cscope_vim_db_index_file = s:cscope_vim_db_dir.'/index'
