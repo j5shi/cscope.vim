@@ -98,6 +98,7 @@ function! s:CscopeUpdateCurrentDB()
 
   if l:prepend_path != ""
     call <SID>BuildDB(l:prepend_path, 0)
+    call <SID>LoadDB(l:prepend_path)
   else
     let l:prepend_path = <SID>InitDB(l:current_path)
 
