@@ -42,7 +42,7 @@ function! CscopeFind(action, word, ...)
     let l:prepend_path = <SID>InitDB(l:current_path)
 
     if l:prepend_path != ""
-      call <SID>BuildDB(l:prepend_path, 1)
+      call <SID>BuildDB(l:prepend_path, 1, 1)
       call <SID>LoadDB(l:prepend_path)
     endif
   endif
@@ -88,22 +88,22 @@ endfunction
 
 function! s:CscopeUpdateAllDB()
   for d in keys(s:dbs)
-    call <SID>BuildDB(d, 0)
+    call <SID>BuildDB(d, 0, 1)
   endfor
 endfunction
 
-function! s:CscopeUpdateCurrentDB()
+function! s:CscopeUpdateCurrentDB(force_update_file_list)
   let l:current_path = expand('%:p:h')
   let l:prepend_path = <SID>GetPrependPath(l:current_path)
 
   if l:prepend_path != ""
-    call <SID>BuildDB(l:prepend_path, 0)
+    call <SID>BuildDB(l:prepend_path, 0, a:force_update_file_list)
     call <SID>LoadDB(l:prepend_path)
   else
     let l:prepend_path = <SID>InitDB(l:current_path)
 
     if l:prepend_path != ""
-      call <SID>BuildDB(l:prepend_path, 1)
+      call <SID>BuildDB(l:prepend_path, 1, a:force_update_file_list)
       call <SID>LoadDB(l:prepend_path)
     endif
   endif
@@ -116,7 +116,7 @@ function! s:CscopeRebuildCurrentDB()
   let l:prepend_path = <SID>InitDB(l:current_path)
 
   if l:prepend_path != ""
-    call <SID>BuildDB(l:prepend_path, 1)
+    call <SID>BuildDB(l:prepend_path, 1, 1)
     call <SID>LoadDB(l:prepend_path)
   endif
 endfunction
@@ -169,7 +169,7 @@ function! s:ClearDBs(clearWhich)
   endif
 endfunction
 
-function! s:BuildDB(prepend_path, init)
+function! s:BuildDB(prepend_path, init, force_update_file_list)
   let l:id = s:dbs[a:prepend_path][s:cscope_vim_db_entry_key_id]
   let l:depedency = split(s:dbs[a:prepend_path][s:cscope_vim_db_entry_key_depedency], ';')
   let l:cscope_files = s:cscope_vim_db_dir."/".id."_inc.files"
@@ -185,12 +185,15 @@ function! s:BuildDB(prepend_path, init)
     let l:depedency[i] = <SID>CheckAbsolutePath(l:depedency[i], "")
   endfor
 
-  " force update file list
-  let files = []
-  for d in [a:prepend_path] + l:depedency
-    let files += <SID>ListFiles(d)
-  endfor
-  call writefile(files, cscope_files)
+  if a:force_update_file_list
+    let files = []
+
+    for d in [a:prepend_path] + l:depedency
+        let files += <SID>ListFiles(d)
+    endfor
+
+    call writefile(files, cscope_files)
+  endif
 
   " build cscope database, must build in the 
   " prepend path otherwise there might be error
@@ -415,12 +418,13 @@ if !exists('g:cscope_interested_files')
   let g:cscope_interested_files = join(map(files, 'v:val."$"'), '\|')
 endif
 
-command! -nargs=0 CscopeClearAllDB       call <SID>ClearDBs(-1)
-command! -nargs=0 CscopeClearCurrentDB   call <SID>ClearDBs(0)
-command! -nargs=0 CscopeList             call <SID>ListDBs()
-command! -nargs=0 CscopeRebuildCurrentDB call <SID>CscopeRebuildCurrentDB()
-command! -nargs=0 CscopeUpdateAllDB      call <SID>CscopeUpdateAllDB()
-command! -nargs=0 CscopeUpdateCurrentDB  call <SID>CscopeUpdateCurrentDB()
+command! -nargs=0 CscopeClearAllDB                 call <SID>ClearDBs(-1)
+command! -nargs=0 CscopeClearCurrentDB             call <SID>ClearDBs(0)
+command! -nargs=0 CscopeList                       call <SID>ListDBs()
+command! -nargs=0 CscopeRebuildCurrentDB           call <SID>CscopeRebuildCurrentDB()
+command! -nargs=0 CscopeUpdateAllDB                call <SID>CscopeUpdateAllDB()
+command! -nargs=0 CscopeUpdateCurrentDB            call <SID>CscopeUpdateCurrentDB(0)
+command! -nargs=0 CscopeUpdateCurrentDbAndFilelist call <SID>CscopeUpdateCurrentDB(1)
 
 set cscopequickfix=s-,g-,d-,c-,t-,e-,f-,i-
 call <SID>LoadIndex()
