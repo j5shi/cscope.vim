@@ -131,8 +131,6 @@ function! s:CheckAbsolutePath(dir, defaultPath)
     elseif (len(d) < 2 || (d[0] != '/' && d[1] != ':'))
       echohl WarningMsg | echo "Please input an absolute path." | echohl None
       let d = input("", a:defaultPath, 'dir')
-    elseif d == "q"
-      return
     else
       break
     endif
