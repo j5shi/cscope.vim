@@ -126,7 +126,7 @@ function! s:CheckAbsolutePath(dir, defaultPath)
 
   while 1
     if !isdirectory(d)
-      echohl WarningMsg | echo "Please input a valid path, input 'q' to quit." | echohl None
+      echohl WarningMsg | echo "Please input a valid path." | echohl None
       let d = input("", a:defaultPath, 'dir')
     elseif (len(d) < 2 || (d[0] != '/' && d[1] != ':'))
       echohl WarningMsg | echo "Please input an absolute path." | echohl None
