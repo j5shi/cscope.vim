@@ -66,6 +66,7 @@ function! CscopeFind(action, word, ...)
 
     if g:cscope_open_location == 1
       cw
+      call matchadd("Search", a:word)
     endif
   catch
     echohl WarningMsg | echo 'Can not find '.a:word.' with querytype as '.a:action.'.' | echohl None
