@@ -203,7 +203,7 @@ function! s:BuildDB(prepend_path, init, force_update_file_list)
   exec 'chdir '.a:prepend_path
   exec 'cs kill '.cscope_db
   redir @x
-  exec 'silent !start '.g:cscope_cmd.' -b -i '.cscope_files.' -f '.cscope_db
+  exec 'silent !'.g:cscope_cmd.' -b -i '.cscope_files.' -f '.cscope_db
   redir END
 
   " check build result and add database
