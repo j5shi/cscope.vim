@@ -189,7 +189,7 @@ function! s:BuildDB(prepend_path, init, force_update_file_list)
   if a:force_update_file_list
     let files = []
 
-    for d in [a:prepend_path] + l:depedency
+    for d in [a:prepend_path] + l:depedency + [g:cscope_common_include_path]
         let files += <SID>ListFiles(d)
     endfor
 
@@ -417,6 +417,10 @@ endif
 if !exists('g:cscope_interested_files')
   let files = readfile(expand("<sfile>:p:h")."/interested.txt")
   let g:cscope_interested_files = join(map(files, 'v:val."$"'), '\|')
+endif
+
+if !exists('g:cscope_common_include_path')
+  let g:cscope_common_include_path = ""
 endif
 
 command! -nargs=0 CscopeClearAllDB                 call <SID>ClearDBs(-1)
