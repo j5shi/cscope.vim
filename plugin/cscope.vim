@@ -189,7 +189,7 @@ function! s:BuildDB(prepend_path, init, force_update_file_list)
   if a:force_update_file_list
     let files = []
 
-    for d in [a:prepend_path] + l:depedency + [g:cscope_common_include_path]
+    for d in [a:prepend_path] + l:depedency
         let files += <SID>ListFiles(d)
     endfor
 
@@ -253,7 +253,7 @@ function! s:InitDB(current_path)
     let s:dbs[l:prepend_path][s:cscope_vim_db_entry_key_id] = localtime()
     let s:dbs[l:prepend_path][s:cscope_vim_db_entry_key_loadtimes] = 0
     let s:dbs[l:prepend_path][s:cscope_vim_db_entry_key_dirty] = 0
-    let s:dbs[l:prepend_path][s:cscope_vim_db_entry_key_depedency] = l:depedency_path
+    let s:dbs[l:prepend_path][s:cscope_vim_db_entry_key_depedency] = g:cscope_common_include_path.";".l:depedency_path
 
     call <SID>FlushIndex()
 
