@@ -203,7 +203,13 @@ function! s:BuildDB(prepend_path, init, force_update_file_list)
   exec 'chdir '.a:prepend_path
   exec 'cs kill '.cscope_db
   redir @x
-  exec 'silent !'.g:cscope_cmd.' -b -i '.cscope_files.' -f '.cscope_db
+
+  if g:cscope_update_db_asynchronously == 1
+    exec 'silent !start '.g:cscope_cmd.' -b -i '.cscope_files.' -f '.cscope_db
+  else
+    exec 'silent !'.g:cscope_cmd.' -b -i '.cscope_files.' -f '.cscope_db
+  endif
+
   redir END
 
   " check build result and add database
@@ -403,6 +409,10 @@ endif
 
 if !exists('g:cscope_search_case_insensitive')
   let g:cscope_search_case_insensitive = 0
+endif
+
+if !exists('g:cscope_update_db_asynchronously')
+  let g:cscope_update_db_asynchronously = 0
 endif
 
 if !exists('g:cscope_cmd')
