@@ -249,7 +249,7 @@ function! s:cscope_vim_get_project_root(current_path)
     else
         if s:cscope_vim_working_project_root != ""
             return s:cscope_vim_working_project_root
-        else
+        endif
     endif
 endfunction
 
