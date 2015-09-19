@@ -235,23 +235,21 @@ function! s:cscope_vim_ask_for_dependent_project_root(current_path)
 endfunction
 
 function! s:cscope_vim_get_project_root(current_path)
-    if s:cscope_vim_working_project_root != ""
-        return s:cscope_vim_working_project_root
-    else
-        let l:current_path_unified    = <SID>cscope_vim_unify_path(a:current_path)
-        let l:project_root_best_match = ""
+    let l:current_path_unified    = <SID>cscope_vim_unify_path(a:current_path)
+    let l:project_root_best_match = ""
 
-        for l:project_root in keys(s:dbs)
-            if stridx(l:current_path_unified, l:project_root) == 0 && len(l:project_root) > len(l:project_root_best_match)
-                let l:project_root_best_match = l:project_root
-            endif
-        endfor
-        
-        if l:project_root_best_match != ""
-            return l:project_root_best_match
-        else
-            return ""
+    for l:project_root in keys(s:dbs)
+        if stridx(l:current_path_unified, l:project_root) == 0 && len(l:project_root) > len(l:project_root_best_match)
+            let l:project_root_best_match = l:project_root
         endif
+    endfor
+    
+    if l:project_root_best_match != ""
+        return l:project_root_best_match
+    else
+        if s:cscope_vim_working_project_root != ""
+            return s:cscope_vim_working_project_root
+        else
     endif
 endfunction
 
