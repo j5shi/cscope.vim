@@ -345,26 +345,22 @@ function! s:cscope_vim_build_db(project_root, force_update_file_list)
     " for symbols.
     exec 'chdir '.a:project_root
 
-    if g:cscope_update_db_asynchronously == 1
-        " TBD
+    exec 'cs kill '.l:cscope_db
+
+    " save commands to x resiger for debugging and building result checking
+    redir @x
+    exec 'silent !'.g:cscope_cmd.' -b -i '.l:cscope_files.' -f '.l:cscope_db
+    redir END
+
+    " check build result and add database
+    if @x =~ "\nCommand terminated\n"
+        echohl WarningMsg | echo "Failed to create cscope database for ".a:project_root.", please check if " | echohl None
+        let s:dbs[a:project_root][s:cscope_vim_db_entry_key_dirty] = 1
     else
-        exec 'cs kill '.l:cscope_db
-
-        " save commands to x resiger for debugging and building result checking
-        redir @x
-        exec 'silent !'.g:cscope_cmd.' -b -i '.l:cscope_files.' -f '.l:cscope_db
-        redir END
-
-        " check build result and add database
-        if @x =~ "\nCommand terminated\n"
-            echohl WarningMsg | echo "Failed to create cscope database for ".a:project_root.", please check if " | echohl None
-            let s:dbs[a:project_root][s:cscope_vim_db_entry_key_dirty] = 1
-        else
-            let s:dbs[a:project_root][s:cscope_vim_db_entry_key_dirty] = 0
-        endif
-
-        call <SID>cscope_vim_flush_index()
+        let s:dbs[a:project_root][s:cscope_vim_db_entry_key_dirty] = 0
     endif
+
+    call <SID>cscope_vim_flush_index()
 endfunction
 
 function! s:cscope_vim_rebuild_current_db()
@@ -374,8 +370,12 @@ function! s:cscope_vim_rebuild_current_db()
     let l:project_root = <SID>cscope_vim_init_db(l:current_path)
 
     if l:project_root != ""
-        call <SID>cscope_vim_build_db(l:project_root, 1)
-        call <SID>cscope_vim_connect_db()
+        if g:cscope_update_db_asynchronously == 1
+            " To be implemented.
+        else
+            call <SID>cscope_vim_build_db(l:project_root, 1)
+            call <SID>cscope_vim_connect_db()
+        endif
     endif
 endfunction
 
@@ -386,8 +386,12 @@ function! s:cscope_vim_update_current_db(force_update_file_list)
     if l:project_root == ""
         echohl WarningMsg | echo "Project not found, nothing to update!" | echohl None
     else
-        call <SID>cscope_vim_build_db(l:project_root, a:force_update_file_list)
-        call <SID>cscope_vim_connect_db()
+        if g:cscope_update_db_asynchronously == 1
+            " To be implemented.
+        else
+            call <SID>cscope_vim_build_db(l:project_root, a:force_update_file_list)
+            call <SID>cscope_vim_connect_db()
+        endif
     endif
 endfunction
 
@@ -463,9 +467,6 @@ if !exists('g:cscope_search_case_insensitive')
     let g:cscope_search_case_insensitive = 0
 endif
 
-" FIXME: UPDATING DB ASYNCHRONOUSLY MAY CAUSE THE
-"        NEWLY GENERATED DB ORPHEN. WE PROBABLY 
-"        NEED TO DO IT IN THE SAME THREAD.
 if !exists('g:cscope_update_db_asynchronously')
     let g:cscope_update_db_asynchronously = 0
 endif
