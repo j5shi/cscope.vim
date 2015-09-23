@@ -371,7 +371,7 @@ function! s:cscope_vim_rebuild_current_db()
 
     if l:project_root != ""
         if g:cscope_update_db_asynchronously == 1
-            " To be implemented.
+            echohl WarningMsg | echo "Asynchronous updating is not supported yet!" | echohl None
         else
             call <SID>cscope_vim_build_db(l:project_root, 1)
             call <SID>cscope_vim_connect_db()
@@ -387,7 +387,7 @@ function! s:cscope_vim_update_current_db(force_update_file_list)
         echohl WarningMsg | echo "Project not found, nothing to update!" | echohl None
     else
         if g:cscope_update_db_asynchronously == 1
-            " To be implemented.
+            echohl WarningMsg | echo "Asynchronous updating is not supported yet!" | echohl None
         else
             call <SID>cscope_vim_build_db(l:project_root, a:force_update_file_list)
             call <SID>cscope_vim_connect_db()
