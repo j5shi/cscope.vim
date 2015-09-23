@@ -340,36 +340,31 @@ function! s:cscope_vim_build_db(project_root, force_update_file_list)
         call writefile(l:files, l:cscope_files)
     endif
 
-    " build cscope database, must build in the 
-    " root path otherwise there might be error
-    " in generating database, e.g. invalid path for
-    " symbols.
+    " build cscope database, must build in the root path otherwise 
+    " there might be errors in generating database, e.g. invalid path 
+    " for symbols.
     exec 'chdir '.a:project_root
-    exec 'cs kill '.cscope_db
- 
-    " save commands to x resiger for debugging and
-    " build result checking
-    redir @x
+
     if g:cscope_update_db_asynchronously == 1
-        if s:cscope_use_vimproc == 1
-            call vimproc#system_bg(g:cscope_cmd.' -b -i '.cscope_files.' -f '.cscope_db) 
+        " TBD
+    else
+        exec 'cs kill '.l:cscope_db
+
+        " save commands to x resiger for debugging and building result checking
+        redir @x
+        exec 'silent !'.g:cscope_cmd.' -b -i '.l:cscope_files.' -f '.l:cscope_db
+        redir END
+
+        " check build result and add database
+        if @x =~ "\nCommand terminated\n"
+            echohl WarningMsg | echo "Failed to create cscope database for ".a:project_root.", please check if " | echohl None
+            let s:dbs[a:project_root][s:cscope_vim_db_entry_key_dirty] = 1
         else
-            exec 'silent !start '.g:cscope_cmd.' -b -i '.cscope_files.' -f '.cscope_db
+            let s:dbs[a:project_root][s:cscope_vim_db_entry_key_dirty] = 0
         endif
-    else
-        exec 'silent !'.g:cscope_cmd.' -b -i '.cscope_files.' -f '.cscope_db
-    endif
-    redir END
 
-    " check build result and add database
-    if @x =~ "\nCommand terminated\n"
-        echohl WarningMsg | echo "Failed to create cscope database for ".a:project_root.", please check if " | echohl None
-        let s:dbs[a:project_root][s:cscope_vim_db_entry_key_dirty] = 1
-    else
-        let s:dbs[a:project_root][s:cscope_vim_db_entry_key_dirty] = 0
+        call <SID>cscope_vim_flush_index()
     endif
-
-    call <SID>cscope_vim_flush_index()
 endfunction
 
 function! s:cscope_vim_rebuild_current_db()
@@ -421,12 +416,18 @@ function! s:cscope_vim_connect_db()
     let l:db_prepend   = l:project_root
 
     " 3.1) if db not exists, warning, stop
-    if !filereadable(s:cscope_vim_db_index_file)
+    if !filereadable(l:db_file_name)
         echohl WarningMsg | echo "Project found but cscope database is missing, please create one first!" | echohl None
         return
     endif
+    
+    " 3.2) if db file list not exists, warning, stop
+    if !filereadable(l:db_file_list)
+        echohl WarningMsg | echo "Project found but cscope database file list is missing, please re-create the db!" | echohl None
+        return
+    endif
 
-    " 3.2) if db exists, connect to it, stop
+    " 3.3) if db exists, connect to it, stop
     if g:cscope_search_case_insensitive == 1
         exe 'cs add '.l:db_file_name.' '.l:db_prepend.' -C'
         echo 'cscope db '.l:db_file_name.' added, working in case-insensitive mode.'
@@ -449,18 +450,6 @@ function! s:cscope_vim_unify_path(path_non_unified)
 
     return tolower(l:path_unified)
 endfunction
-
-function! s:cscope_vim_has_vimproc()
-    if !exists('s:cscope_use_vimproc')
-        try
-            call vimproc#version()
-            let s:cscope_use_vimproc = 1
-        catch
-            let s:cscope_use_vimproc = 0
-        endtry
-    endif
-endfunction
-call <SID>cscope_vim_has_vimproc()
 
 if !exists('g:cscope_vim_auto_connect_db')
     let g:cscope_vim_auto_connect_db = 0
