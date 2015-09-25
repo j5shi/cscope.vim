@@ -114,14 +114,18 @@ function! s:cscope_vim_load_index()
             if len(l:db_entry) != s:cscope_vim_db_entry_len
                 call <SID>cscope_vim_remove_all_db_and_index_files()
             else
-                let l:db_file_name = s:cscope_vim_db_dir.'/'.l:db_entry[s:cscope_vim_db_entry_idx_id].'.db'
-                let l:db_file_list = s:cscope_vim_db_dir.'/'.l:db_entry[s:cscope_vim_db_entry_idx_id].'.files'
+                let l:db_file_name    = s:cscope_vim_db_dir.'/'.l:db_entry[s:cscope_vim_db_entry_idx_id].'.db'
+                let l:db_in_file_name = s:cscope_vim_db_dir.'/'.l:db_entry[s:cscope_vim_db_entry_idx_id].'.db.in'
+                let l:db_po_file_name = s:cscope_vim_db_dir.'/'.l:db_entry[s:cscope_vim_db_entry_idx_id].'.db.po'
+                let l:db_file_list    = s:cscope_vim_db_dir.'/'.l:db_entry[s:cscope_vim_db_entry_idx_id].'.files'
         
                 " If the project root got deleted, renamed, 
                 " moved, then the db and project file list 
                 " will be invalid, so, delete them.
                 if !isdirectory(l:db_entry[s:cscope_vim_db_entry_idx_project_root])
                     call delete(l:db_file_name)
+                    call delete(l:db_in_file_name)
+                    call delete(l:db_po_file_name)
                     call delete(l:db_file_list)
                 else
                     let s:dbs[l:db_entry[s:cscope_vim_db_entry_idx_project_root]]                                      = {}
@@ -349,7 +353,14 @@ function! s:cscope_vim_build_db(project_root, force_update_file_list)
 
     " save commands to x resiger for debugging and building result checking
     redir @x
-    exec 'silent !'.g:cscope_cmd.' -b -i '.l:cscope_files.' -f '.l:cscope_db
+
+    if g:cscope_sort_tool_dir != ""
+        exec 'chdir '.g:cscope_sort_tool_dir
+        exec 'silent !'.g:cscope_cmd.' -q -b -i '.l:cscope_files.' -f '.l:cscope_db
+    else
+        exec 'silent !'.g:cscope_cmd.' -b -i '.l:cscope_files.' -f '.l:cscope_db
+    endif
+
     redir END
 
     " check build result and add database
@@ -479,6 +490,11 @@ if !exists('g:cscope_cmd')
         finish
     endif
 endif
+
+if !exists('g:cscope_sort_tool_dir')
+    let g:cscope_sort_tool_dir = ''
+endif
+
 
 if !exists('g:cscope_interested_files')
     let g:cscope_interested_files = '\.c$\|\.cpp$\|\.h$\|\.hpp' 
