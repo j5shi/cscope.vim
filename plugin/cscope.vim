@@ -274,16 +274,16 @@ endfunction
 
 " Delete any files related to the db to be deleted.
 "
-" @param clearWhich <enum>:  -1   all database
-"                             0   the current database
-function! s:cscope_vim_clear_db(clearWhich)
+" @param clear_which         <enum>:  -1   all database
+"                                      0   the current database
+function! s:cscope_vim_clear_db(clear_which)
     cs kill -1
     
-    if a:clearWhich == -1
+    if a:clear_which == -1
         let s:dbs = {}
         call <SID>cscope_vim_remove_all_db_and_index_files()
         call <SID>cscope_vim_flush_index()
-    elseif a:clearWhich == 0
+    elseif a:clear_which == 0
         let l:current_path = <SID>cscope_vim_unify_path(expand('%:p:h'))
         let l:project_root = <SID>cscope_vim_get_project_root(l:current_path)
 
@@ -296,7 +296,7 @@ function! s:cscope_vim_clear_db(clearWhich)
                 call delete(l:file)
             endfor
 
-            unlet s:dbs[l:project_root]
+            " unlet s:dbs[l:project_root]
 
             call <SID>cscope_vim_flush_index()
         endif
