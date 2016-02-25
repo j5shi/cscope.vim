@@ -29,10 +29,10 @@ let s:cscope_vim_working_project_root      = ""
 "                                        will be split virtically
 "*********************************************************
 function! CscopeFind(query_mode, query_str, ...)
-    if g:cscope_vim_auto_connect_db == 1
+    if cscope_connection() == 0 && g:cscope_auto_connect_db == 1
         call <SID>cscope_vim_connect_db()
     endif
-    
+
     if cscope_connection() == 0
         echohl WarningMsg | echo 'No cscope database is connected!' | echohl None
         return
@@ -265,7 +265,7 @@ function! s:cscope_vim_init_db(current_path)
     let s:dbs[l:project_root][s:cscope_vim_db_entry_key_id]        = localtime()
     let s:dbs[l:project_root][s:cscope_vim_db_entry_key_loadtimes] = 0
     let s:dbs[l:project_root][s:cscope_vim_db_entry_key_dirty]     = 0
-    let s:dbs[l:project_root][s:cscope_vim_db_entry_key_depedency] = g:cscope_vim_common_project_root.";".l:dependent_project_root
+    let s:dbs[l:project_root][s:cscope_vim_db_entry_key_depedency] = g:cscope_common_project_root.";".l:dependent_project_root
 
     call <SID>cscope_vim_flush_index()
 
@@ -466,8 +466,8 @@ function! s:cscope_vim_unify_path(path_non_unified)
     return tolower(l:path_unified)
 endfunction
 
-if !exists('g:cscope_vim_auto_connect_db')
-    let g:cscope_vim_auto_connect_db = 0
+if !exists('g:cscope_auto_connect_db')
+    let g:cscope_auto_connect_db = 0
 endif
 
 if !exists('g:cscope_vim_open_location_list')
@@ -500,10 +500,10 @@ if !exists('g:cscope_interested_files')
     let g:cscope_interested_files = '\.c$\|\.cpp$\|\.h$\|\.hpp' 
 endif
 
-if !exists('g:cscope_vim_common_project_root')
-    let g:cscope_vim_common_project_root = ""
+if !exists('g:cscope_common_project_root')
+    let g:cscope_common_project_root = ""
 else
-    let g:cscope_vim_common_project_root = <sid>cscope_vim_unify_path(g:cscope_vim_common_project_root)
+    let g:cscope_common_project_root = <sid>cscope_vim_unify_path(g:cscope_common_project_root)
 endif
 
 command! -nargs=0 CscopeConnectDb                  call <SID>cscope_vim_connect_db()
