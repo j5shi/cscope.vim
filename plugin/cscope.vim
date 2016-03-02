@@ -60,6 +60,10 @@ endfunction
 " @parm query_str   <str>: query string.
 "*********************************************************
 function! CscopeFindInteractive(query_str)
+    if cscope_connection() == 0 && g:cscope_auto_connect_db == 1
+        call <SID>cscope_vim_connect_db()
+    endif
+
     if cscope_connection() == 0
         echohl WarningMsg | echo 'No cscope database is connected!' | echohl None
         return
