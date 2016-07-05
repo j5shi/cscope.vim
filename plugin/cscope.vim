@@ -166,6 +166,8 @@ function! s:cscope_vim_list_files(root_dir)
     let l:cwd          = a:root_dir
     let l:status       = &l:statusline
 
+    let &l:statusline = 'Updating file list, this may take a while...' | redrawstatus
+
     while l:cwd != ''
         let l:items = split(globpath(l:cwd, "*"), "\n")
 
@@ -187,7 +189,8 @@ function! s:cscope_vim_list_files(root_dir)
 
         let l:cwd = len(l:sub_dir_list) ? remove(l:sub_dir_list, 0) : ''
 
-        sleep 1m | let &l:statusline = 'Found '.len(l:file_list).' files in '.l:cwd | redrawstatus
+        " comment out for performance
+        " sleep 1m | let &l:statusline = 'Found '.len(l:file_list).' files in '.l:cwd | redrawstatus
     endwhile
 
     " restore the status line
