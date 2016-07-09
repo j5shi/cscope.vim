@@ -340,6 +340,7 @@ function! s:cscope_vim_build_db(project_root, force_update_file_list)
     let l:dependent_projects = split(s:dbs[a:project_root][s:cscope_vim_db_entry_key_depedency], ';')
     let l:cscope_files       = s:cscope_vim_db_dir."/".id.".files"
     let l:cscope_db          = s:cscope_vim_db_dir.'/'.id.'.db'
+    let l:status             = &l:statusline
 
     if a:force_update_file_list
         let l:files = []
@@ -361,11 +362,22 @@ function! s:cscope_vim_build_db(project_root, force_update_file_list)
     " save commands to x resiger for debugging and building result checking
     redir @x
 
+    let &l:statusline = 'Generating cscope databse ('.l:cscope_db.'), this may take a while...' | redrawstatus
+
     if g:cscope_sort_tool_dir != ""
         exec 'chdir '.g:cscope_sort_tool_dir
-        exec 'silent !'.g:cscope_cmd.' -q -b -i '.l:cscope_files.' -f '.l:cscope_db
+
+        if g:cscope_use_vim_proc == 1
+            exec 'silent call vimproc#system("'.g:cscope_cmd." -q -b -i ".l:cscope_files." -f ".l:cscope_db."\")"
+        else
+            exec 'silent !'.g:cscope_cmd.' -q -b -i '.l:cscope_files.' -f '.l:cscope_db
+        endif
     else
-        exec 'silent !'.g:cscope_cmd.' -b -i '.l:cscope_files.' -f '.l:cscope_db
+        if g:cscope_use_vim_proc == 1
+            exec 'silent call vimproc#system("'.g:cscope_cmd." -b -i ".l:cscope_files." -f ".l:cscope_db."\")"
+        else
+            exec 'silent !'.g:cscope_cmd.' -b -i '.l:cscope_files.' -f '.l:cscope_db
+        endif
     endif
 
     redir END
@@ -379,6 +391,9 @@ function! s:cscope_vim_build_db(project_root, force_update_file_list)
     endif
 
     call <SID>cscope_vim_flush_index()
+
+    " restore the status line
+    sleep 1m | let &l:statusline = l:status | redrawstatus
 endfunction
 
 function! s:cscope_vim_rebuild_current_db()
@@ -511,6 +526,10 @@ if !exists('g:cscope_common_project_root')
     let g:cscope_common_project_root = ""
 else
     let g:cscope_common_project_root = <sid>cscope_vim_unify_path(g:cscope_common_project_root)
+endif
+
+if !exists('g:cscope_use_vim_proc')
+    let g:cscope_use_vim_proc = 0
 endif
 
 command! -nargs=0 CscopeConnectDb                  call <SID>cscope_vim_connect_db()
