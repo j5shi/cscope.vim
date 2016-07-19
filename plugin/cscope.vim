@@ -1,6 +1,6 @@
 " File: cscope.vim
-" Author: Jia Shi <j5shi.vip@gmail.com>
-" Last Modified: 2015-09-18 21:30:09
+" Author: Jia Shi <j5shi dot vip at gmail dot com>
+" Last Modified: 2016-07-19 09:32:19
 " Copyright: Copyright (C) 2015 Jia Shi 
 " License: The MIT License
 "
@@ -10,12 +10,12 @@ let s:cscope_vim_db_entry_idx_project_root = 0
 let s:cscope_vim_db_entry_idx_id           = 1
 let s:cscope_vim_db_entry_idx_loadtimes    = 2
 let s:cscope_vim_db_entry_idx_dirty        = 3
-let s:cscope_vim_db_entry_idx_depedency    = 4
+let s:cscope_vim_db_entry_idx_dependency   = 4
 let s:cscope_vim_db_entry_len              = 5
 let s:cscope_vim_db_entry_key_id           = 'id'
 let s:cscope_vim_db_entry_key_loadtimes    = 'loadtimes'
 let s:cscope_vim_db_entry_key_dirty        = 'dirty'
-let s:cscope_vim_db_entry_key_depedency    = 'depedency'
+let s:cscope_vim_db_entry_key_dependency   = 'dependency'
 let s:cscope_vim_working_project_root      = ""
 
 "*********************************************************
@@ -26,7 +26,7 @@ let s:cscope_vim_working_project_root      = ""
 " @param va_list[1] <enum>: 'horizontal' search result window
 "                                        will be split horizontally
 "                           'vertical'   search result window
-"                                        will be split virtically
+"                                        will be split vertically
 "*********************************************************
 function! CscopeFind(query_mode, query_str, ...)
     if cscope_connection() == 0 && g:cscope_auto_connect_db == 1
@@ -96,11 +96,11 @@ function! s:cscope_vim_load_index()
     " s:dbs = { 'project_root1': {'id'       : '',
     "                             'loadtimes': '',
     "                             'dirty'    : 0|1,
-    "                             'depedency': '...;...'},
+    "                             'dependency': '...;...'},
     "           'project_root1': {'id'       : '',         
     "                             'loadtimes': '',         
     "                             'dirty'    : 0|1,        
-    "                             'depedency': '...;...'}, 
+    "                             'dependency': '...;...'}, 
     "                   ...
     "         }
     let s:dbs = {}
@@ -136,7 +136,7 @@ function! s:cscope_vim_load_index()
                     let s:dbs[l:db_entry[s:cscope_vim_db_entry_idx_project_root]][s:cscope_vim_db_entry_key_id]        = l:db_entry[s:cscope_vim_db_entry_idx_id]
                     let s:dbs[l:db_entry[s:cscope_vim_db_entry_idx_project_root]][s:cscope_vim_db_entry_key_loadtimes] = l:db_entry[s:cscope_vim_db_entry_idx_loadtimes]
                     let s:dbs[l:db_entry[s:cscope_vim_db_entry_idx_project_root]][s:cscope_vim_db_entry_key_dirty]     = l:db_entry[s:cscope_vim_db_entry_idx_dirty]
-                    let s:dbs[l:db_entry[s:cscope_vim_db_entry_idx_project_root]][s:cscope_vim_db_entry_key_depedency] = l:db_entry[s:cscope_vim_db_entry_idx_depedency]
+                    let s:dbs[l:db_entry[s:cscope_vim_db_entry_idx_project_root]][s:cscope_vim_db_entry_key_dependency] = l:db_entry[s:cscope_vim_db_entry_idx_dependency]
                 endif
             endif
         endfor
@@ -154,7 +154,7 @@ function! s:cscope_vim_flush_index()
                 \s:dbs[l:project_root][s:cscope_vim_db_entry_key_id].'|'.
                 \s:dbs[l:project_root][s:cscope_vim_db_entry_key_loadtimes].'|'.
                 \s:dbs[l:project_root][s:cscope_vim_db_entry_key_dirty].'|'.
-                \s:dbs[l:project_root][s:cscope_vim_db_entry_key_depedency].'|')
+                \s:dbs[l:project_root][s:cscope_vim_db_entry_key_dependency].'|')
     endfor
 
     call writefile(l:lines, s:cscope_vim_db_index_file)
@@ -272,7 +272,7 @@ function! s:cscope_vim_init_db(current_path)
     let s:dbs[l:project_root][s:cscope_vim_db_entry_key_id]        = localtime()
     let s:dbs[l:project_root][s:cscope_vim_db_entry_key_loadtimes] = 0
     let s:dbs[l:project_root][s:cscope_vim_db_entry_key_dirty]     = 0
-    let s:dbs[l:project_root][s:cscope_vim_db_entry_key_depedency] = g:cscope_common_project_root.";".l:dependent_project_root
+    let s:dbs[l:project_root][s:cscope_vim_db_entry_key_dependency] = g:cscope_common_project_root.";".l:dependent_project_root
 
     call <SID>cscope_vim_flush_index()
 
@@ -337,7 +337,7 @@ endfunction
 
 function! s:cscope_vim_build_db(project_root, force_update_file_list)
     let l:id                 = s:dbs[a:project_root][s:cscope_vim_db_entry_key_id]
-    let l:dependent_projects = split(s:dbs[a:project_root][s:cscope_vim_db_entry_key_depedency], ';')
+    let l:dependent_projects = split(s:dbs[a:project_root][s:cscope_vim_db_entry_key_dependency], ';')
     let l:cscope_files       = s:cscope_vim_db_dir."/".id.".files"
     let l:cscope_db          = s:cscope_vim_db_dir.'/'.id.'.db'
     let l:status             = &l:statusline
@@ -353,16 +353,16 @@ function! s:cscope_vim_build_db(project_root, force_update_file_list)
     endif
 
     " build cscope database, must build in the root path otherwise 
-    " there might be errors in generating database, e.g. invalid path 
+    " there might be errors in generating database, e.g. Invalid path 
     " for symbols.
     exec 'chdir '.a:project_root
 
     exec 'cs kill '.l:cscope_db
 
-    " save commands to x resiger for debugging and building result checking
+    " save commands to x register for debugging and building result checking
     redir @x
 
-    let &l:statusline = 'Generating cscope databse ('.l:cscope_db.'), this may take a while...' | redrawstatus
+    let &l:statusline = 'Generating cscope database ('.l:cscope_db.'), this may take a while...' | redrawstatus
 
     if g:cscope_sort_tool_dir != ""
         exec 'chdir '.g:cscope_sort_tool_dir
