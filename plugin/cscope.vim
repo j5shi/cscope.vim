@@ -397,8 +397,6 @@ function! s:cscope_vim_build_db(project_root, force_update_file_list)
 endfunction
 
 function! s:cscope_vim_rebuild_current_db()
-    call <SID>cscope_vim_clear_db(0)
-
     let l:current_path = <SID>cscope_vim_unify_path(expand('%:p:h'))
     let l:project_root = <SID>cscope_vim_init_db(l:current_path)
 
@@ -406,6 +404,7 @@ function! s:cscope_vim_rebuild_current_db()
         if g:cscope_update_db_asynchronously == 1
             echohl WarningMsg | echo "Asynchronous updating is not supported yet!" | echohl None
         else
+            call <SID>cscope_vim_clear_db(0)
             call <SID>cscope_vim_build_db(l:project_root, 1)
             call <SID>cscope_vim_connect_db()
         endif
