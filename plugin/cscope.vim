@@ -484,7 +484,8 @@ function! s:cscope_vim_unify_path(path_non_unified)
     let l:path_unified = substitute(l:path_unified, '/\+$', '', '')
     let l:path_unified = substitute(l:path_unified, "\/\\s*$", '', 'g')
 
-    return tolower(l:path_unified)
+    return l:path_unified
+    " return tolower(l:path_unified)
 endfunction
 
 if !exists('g:cscope_auto_connect_db')
