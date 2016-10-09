@@ -466,10 +466,10 @@ function! s:cscope_vim_connect_db()
     " 3.3) if db exists, connect to it, stop
     if g:cscope_search_case_insensitive == 1
         exe 'cs add '.l:db_file_name.' '.l:db_prepend.' -C'
-        echo 'cscope db '.l:db_file_name.' added, working in case-insensitive mode.'
+        echo 'cscope db connected, project root: '.l:project_root.'. working in case-insensitive mode.'
     else
         exe 'cs add '.l:db_file_name.' '.l:db_prepend
-        echo 'cscope db '.l:db_file_name.' added, working in case-sensitive mode.'
+        echo 'cscope db connected, project root: '.l:project_root.'. working in case-sensitive mode.'
     endif
 
     " 4) set current working project
