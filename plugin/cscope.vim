@@ -172,8 +172,10 @@ function! s:cscope_vim_list_files(root_dir)
         let l:items = split(globpath(l:cwd, "*"), "\n")
 
         for l:item in l:items
-            if getftype(l:item) == 'dir' || getftype(l:item) == 'link'
+            if getftype(l:item) == 'dir'
                 call add(l:sub_dir_list, l:item)
+            elseif getftype(l:item) == 'link'
+                call add(l:sub_dir_list, resolve(expand(l:item)))
             elseif getftype(l:item) != 'file'
                 continue
             elseif l:item !~? g:cscope_interested_files
