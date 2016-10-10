@@ -166,40 +166,44 @@ function! s:cscope_vim_list_files(root_dir)
     let l:cwd          = a:root_dir
     let l:status       = &l:statusline
 
-    let &l:statusline = 'Updating file list, this may take a while...' | redrawstatus
+    let &l:statusline = 'Scanning project, this may take a while...' | redrawstatus
 
-    while l:cwd != ''
-        let l:items = split(globpath(l:cwd, "*"), "\n")
+    if g:cscope_include_all_symbolic_links
+        let l:items = globpath(l:cwd, "**/*.*", 0, 1, 1)
 
         for l:item in l:items
-            if getftype(l:item) == 'dir'
-                let &l:statusline = 'Dir added: '.l:item | redrawstatus
-                call add(l:sub_dir_list, l:item)
-            elseif getftype(l:item) == 'link'
-                let l:expanded_link = resolve(expand(l:item))
-
-                if getftype(l:expanded_link) == 'dir'
-                    let &l:statusline = 'Symbolic link added: '.l:expanded_link | redrawstatus
-                    call add(l:sub_dir_list, l:expanded_link)
-                endif
-            elseif getftype(l:item) != 'file'
-                continue
-            elseif l:item !~? g:cscope_interested_files
+            if l:item !~? g:cscope_interested_files
                 continue
             else
                 if stridx(l:item, ' ') != -1
                     let l:item = '"'.l:item.'"'
                 endif
-
                 call add(l:file_list, l:item)
             endif
         endfor
+    else
+        while l:cwd != ''
+            let l:items = globpath(l:cwd, "*", 0, 1)
 
-        let l:cwd = len(l:sub_dir_list) ? remove(l:sub_dir_list, 0) : ''
+            for l:item in l:items
+                if getftype(l:item) == 'dir'
+                    call add(l:sub_dir_list, l:item)
+                elseif getftype(l:item) != 'file'
+                    continue
+                elseif l:item !~? g:cscope_interested_files
+                    continue
+                else
+                    if stridx(l:item, ' ') != -1
+                        let l:item = '"'.l:item.'"'
+                    endif
 
-        " comment out for performance
-        " sleep 1m | let &l:statusline = 'Found '.len(l:file_list).' files in '.l:cwd | redrawstatus
-    endwhile
+                    call add(l:file_list, l:item)
+                endif
+            endfor
+
+            let l:cwd = len(l:sub_dir_list) ? remove(l:sub_dir_list, 0) : ''
+        endwhile
+    endif
 
     " restore the status line
     sleep 1m | let &l:statusline = l:status | redrawstatus
@@ -538,6 +542,10 @@ endif
 
 if !exists('g:cscope_use_vim_proc')
     let g:cscope_use_vim_proc = 0
+endif
+
+if !exists('g:cscope_include_all_symbolic_links')
+    let g:cscope_include_all_symbolic_links = 0
 endif
 
 command! -nargs=0 CscopeConnectDb                  call <SID>cscope_vim_connect_db()
