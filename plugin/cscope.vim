@@ -173,9 +173,15 @@ function! s:cscope_vim_list_files(root_dir)
 
         for l:item in l:items
             if getftype(l:item) == 'dir'
+                let &l:statusline = 'Dir added: '.l:item | redrawstatus
                 call add(l:sub_dir_list, l:item)
             elseif getftype(l:item) == 'link'
-                call add(l:sub_dir_list, resolve(expand(l:item)))
+                let l:expanded_link = resolve(expand(l:item))
+
+                if getftype(l:expanded_link) == 'dir'
+                    let &l:statusline = 'Symbolic link added: '.l:expanded_link | redrawstatus
+                    call add(l:sub_dir_list, l:expanded_link)
+                endif
             elseif getftype(l:item) != 'file'
                 continue
             elseif l:item !~? g:cscope_interested_files
