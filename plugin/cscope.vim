@@ -1,9 +1,14 @@
-" File: cscope.vim
-" Author: Jia Shi <j5shi dot vip at gmail dot com>
-" Last Modified: 2016-07-19 09:32:19
-" Copyright: Copyright (C) 2015 Jia Shi 
-" License: The MIT License
+"***************************************************************************************************
+" File:            cscope.vim
 "
+" Version:         0.5.0 
+"
+" Author:          Jia Shi <j5shi.vip@gmail.com>
+"
+" Last Modified:   2016-10-21 13:08:33
+"
+" License:         The VIM License
+"***************************************************************************************************
 let s:cscope_vim_db_dir                    = substitute($HOME,'\\','/','g')."/.cscope.vim"
 let s:cscope_vim_db_index_file             = s:cscope_vim_db_dir.'/index'
 let s:cscope_vim_db_entry_idx_project_root = 0
