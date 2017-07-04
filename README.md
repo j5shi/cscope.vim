@@ -51,3 +51,4 @@ Some optional key mappings to search directly.
 # Screencast
 Please note that line number changes in location list after file saved.
 ![cscove.vim](https://brookhong.github.io/assets/images/cscove.gif)
+
