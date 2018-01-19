@@ -52,6 +52,8 @@ function! CscopeFind(query_mode, query_str, ...)
             exe 'vert scs f '.a:query_mode.' '.a:query_str
         endif
 
+        " To always show full path in quickfix window!
+        cd 
         if g:cscope_vim_open_location_list == 1
             cw
             call matchadd("Search", a:query_str)
