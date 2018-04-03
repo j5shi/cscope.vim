@@ -22,6 +22,8 @@ let s:cscope_vim_db_entry_key_loadtimes    = 'loadtimes'
 let s:cscope_vim_db_entry_key_dirty        = 'dirty'
 let s:cscope_vim_db_entry_key_dependency   = 'dependency'
 let s:cscope_vim_working_project_root      = ""
+let s:cscope_vim_db_connected              = 0
+
 
 "*********************************************************
 " @param query_mode <char>: cscope query mode, e.g. 's', 'g'...
@@ -34,13 +36,8 @@ let s:cscope_vim_working_project_root      = ""
 "                                        will be split vertically
 "*********************************************************
 function! CscopeFind(query_mode, query_str, ...)
-    if cscope_connection() == 0 && g:cscope_auto_connect_db == 1
+    if s:cscope_vim_db_connected == 0 && g:cscope_auto_connect_db == 1
         call <SID>cscope_vim_connect_db()
-    endif
-
-    if cscope_connection() == 0
-        echohl WarningMsg | echo 'No cscope database is connected!' | echohl None
-        return
     endif
 
     try
@@ -67,13 +64,8 @@ endfunction
 " @parm query_str   <str>: query string.
 "*********************************************************
 function! CscopeFindInteractive(query_str)
-    if cscope_connection() == 0 && g:cscope_auto_connect_db == 1
+    if s:cscope_vim_db_connected == 0 && g:cscope_auto_connect_db == 1
         call <SID>cscope_vim_connect_db()
-    endif
-
-    if cscope_connection() == 0
-        echohl WarningMsg | echo 'No cscope database is connected!' | echohl None
-        return
     endif
 
     call inputsave()
@@ -139,10 +131,10 @@ function! s:cscope_vim_load_index()
                     call delete(l:db_po_file_name)
                     call delete(l:db_file_list)
                 else
-                    let s:dbs[l:db_entry[s:cscope_vim_db_entry_idx_project_root]]                                      = {}
-                    let s:dbs[l:db_entry[s:cscope_vim_db_entry_idx_project_root]][s:cscope_vim_db_entry_key_id]        = l:db_entry[s:cscope_vim_db_entry_idx_id]
-                    let s:dbs[l:db_entry[s:cscope_vim_db_entry_idx_project_root]][s:cscope_vim_db_entry_key_loadtimes] = l:db_entry[s:cscope_vim_db_entry_idx_loadtimes]
-                    let s:dbs[l:db_entry[s:cscope_vim_db_entry_idx_project_root]][s:cscope_vim_db_entry_key_dirty]     = l:db_entry[s:cscope_vim_db_entry_idx_dirty]
+                    let s:dbs[l:db_entry[s:cscope_vim_db_entry_idx_project_root]]                                       = {}
+                    let s:dbs[l:db_entry[s:cscope_vim_db_entry_idx_project_root]][s:cscope_vim_db_entry_key_id]         = l:db_entry[s:cscope_vim_db_entry_idx_id]
+                    let s:dbs[l:db_entry[s:cscope_vim_db_entry_idx_project_root]][s:cscope_vim_db_entry_key_loadtimes]  = l:db_entry[s:cscope_vim_db_entry_idx_loadtimes]
+                    let s:dbs[l:db_entry[s:cscope_vim_db_entry_idx_project_root]][s:cscope_vim_db_entry_key_dirty]      = l:db_entry[s:cscope_vim_db_entry_idx_dirty]
                     let s:dbs[l:db_entry[s:cscope_vim_db_entry_idx_project_root]][s:cscope_vim_db_entry_key_dependency] = l:db_entry[s:cscope_vim_db_entry_idx_dependency]
                 endif
             endif
@@ -304,6 +296,7 @@ endfunction
 "                                      0   the current database
 function! s:cscope_vim_clear_db(clear_which)
     cs kill -1
+    let s:cscope_vim_db_connected = 0
     
     if a:clear_which == -1
         let s:dbs = {}
@@ -377,6 +370,7 @@ function! s:cscope_vim_build_db(project_root, force_update_file_list)
     exec 'chdir '.a:project_root
 
     exec 'cs kill '.l:cscope_db
+    let s:cscope_vim_db_connected = 0
 
     " save commands to x register for debugging and building result checking
     redir @x
@@ -455,6 +449,7 @@ endfunction
 function! s:cscope_vim_connect_db()
     " 1) kill all the cscope db connections, if any.
     cs kill -1
+    let s:cscope_vim_db_connected = 0
     
     let l:current_path = <SID>cscope_vim_unify_path(expand('%:p:h'))
     let l:project_root = <SID>cscope_vim_get_project_root(l:current_path)
@@ -491,11 +486,20 @@ function! s:cscope_vim_connect_db()
         echo 'cscope db connected, project root: '.l:project_root.'. working in case-sensitive mode.'
     endif
 
+    " 3.4) check db connection status
+    if cscope_connection() == 0
+        echohl WarningMsg | echo 'No cscope database is connected!' | echohl None
+        return
+    else
+        let s:cscope_vim_db_connected = 1
+    endif
+
     " 4) set current working project
     let s:cscope_vim_working_project_root = l:project_root
     let s:dbs[l:project_root][s:cscope_vim_db_entry_key_loadtimes] += 1
 
     call <SID>cscope_vim_flush_index()
+
 endfunction
 
 function! s:cscope_vim_unify_path(path_non_unified)
@@ -536,7 +540,6 @@ if !exists('g:cscope_sort_tool_dir')
     let g:cscope_sort_tool_dir = ''
 endif
 
-
 if !exists('g:cscope_interested_files')
     let g:cscope_interested_files = '\.c$\|\.cpp$\|\.h$\|\.hpp' 
 endif
@@ -553,6 +556,10 @@ endif
 
 if !exists('g:cscope_include_all_symbolic_links')
     let g:cscope_include_all_symbolic_links = 0
+endif
+
+if !exists('g:cscope_cancel_highlight')
+    let g:cscope_cancel_highlight = 0
 endif
 
 command! -nargs=0 CscopeConnectDb                  call <SID>cscope_vim_connect_db()
