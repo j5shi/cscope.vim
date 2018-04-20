@@ -467,13 +467,13 @@ function! s:cscope_vim_connect_db()
 
     " 3.1) if db not exists, warning, stop
     if !filereadable(l:db_file_name)
-        echohl WarningMsg | echo "Project found but cscope database is missing, please create one first!" | echohl None
+        echohl WarningMsg | echo "Project found but cscope database (".l:db_file_name.") is missing, please create one first!" | echohl None
         return
     endif
     
     " 3.2) if db file list not exists, warning, stop
     if !filereadable(l:db_file_list)
-        echohl WarningMsg | echo "Project found but cscope database file list is missing, please re-create the db!" | echohl None
+        echohl WarningMsg | echo "Project found but cscope database file list (".l:db_file_list.") is missing, please re-create the db!" | echohl None
         return
     endif
 
