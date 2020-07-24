@@ -480,15 +480,15 @@ function! s:cscope_vim_connect_db()
     " 3.3) if db exists, connect to it, stop
     if g:cscope_search_case_insensitive == 1
         exe 'cs add '.l:db_file_name.' '.l:db_prepend.' -C'
-        echo 'cscope db connected, project root: '.l:project_root.'. working in case-insensitive mode.'
+        echo 'cs add '.l:db_file_name.' '.l:db_prepend.' -C'
     else
         exe 'cs add '.l:db_file_name.' '.l:db_prepend
-        echo 'cscope db connected, project root: '.l:project_root.'. working in case-sensitive mode.'
+        echo 'cs add '.l:db_file_name.' '.l:db_prepend
     endif
 
     " 3.4) check db connection status
     if cscope_connection() == 0
-        echohl WarningMsg | echo 'No cscope database is connected!' | echohl None
+        echohl WarningMsg | echo 'No cscope database is connected! Warning: cscope can not handle paths containing spaces.' | echohl None
         return
     else
         let s:cscope_vim_db_connected = 1
