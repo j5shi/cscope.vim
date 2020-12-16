@@ -381,15 +381,15 @@ function! s:cscope_vim_build_db(project_root, force_update_file_list)
         exec 'chdir '.g:cscope_sort_tool_dir
 
         if g:cscope_use_vim_proc == 1
-            exec 'silent call vimproc#system("'.g:cscope_cmd." -q -b -i ".l:cscope_files." -f ".l:cscope_db."\")"
+            exec 'silent call vimproc#system("'.g:cscope_cmd." -q -b -i -u".l:cscope_files." -f ".l:cscope_db."\")"
         else
-            exec 'silent !'.g:cscope_cmd.' -q -b -i '.l:cscope_files.' -f '.l:cscope_db
+            exec 'silent !'.g:cscope_cmd.' -q -b -i -u'.l:cscope_files.' -f '.l:cscope_db
         endif
     else
         if g:cscope_use_vim_proc == 1
-            exec 'silent call vimproc#system("'.g:cscope_cmd." -q -b -i ".l:cscope_files." -f ".l:cscope_db."\")"
+            exec 'silent call vimproc#system("'.g:cscope_cmd." -q -b -i -u".l:cscope_files." -f ".l:cscope_db."\")"
         else
-            exec 'silent !'.g:cscope_cmd.' -q -b -i '.l:cscope_files.' -f '.l:cscope_db
+            exec 'silent !'.g:cscope_cmd.' -q -b -i -u'.l:cscope_files.' -f '.l:cscope_db
         endif
     endif
 
