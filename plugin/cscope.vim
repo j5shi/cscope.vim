@@ -375,7 +375,7 @@ function! s:cscope_vim_build_db(project_root, force_update_file_list)
     " save commands to x register for debugging and building result checking
     redir @x
 
-    let &l:statusline = 'Generating cscope database ('.l:cscope_db.'), this may take a while...' | redrawstatus
+    let &l:statusline = 'Generating cscope database '.l:cscope_db.' ('.a:project_root.'), this may take a while...' | redrawstatus
 
     let s:cscope_common_build_flags = ' -q -u -b '
 
