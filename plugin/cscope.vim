@@ -367,8 +367,9 @@ function! s:cscope_vim_build_db(project_root, force_update_file_list)
     " build cscope database, must build in the root path otherwise 
     " there might be errors in generating database, e.g. Invalid path 
     " for symbols.
-    exec 'chdir '.a:project_root
-
+    " exec 'chdir '.a:project_root
+    exec 'chdir '.substitute(a:project_root,'#','\\#','g')
+        
     exec 'cs kill '.l:cscope_db
     let s:cscope_vim_db_connected = 0
 
@@ -380,7 +381,8 @@ function! s:cscope_vim_build_db(project_root, force_update_file_list)
     let s:cscope_common_build_flags = ' -q -u -b '
 
     if g:cscope_sort_tool_dir != ""
-        exec 'chdir '.g:cscope_sort_tool_dir
+        " exec 'chdir '.g:cscope_sort_tool_dir
+        exec 'chdir '.substitute(g:cscope_sort_tool_dir,'#','\\#','g')
 
         if g:cscope_use_vim_proc == 1
             exec 'silent call vimproc#system("'.g:cscope_cmd.s:cscope_common_build_flags." -i ".l:cscope_files." -f ".l:cscope_db."\")"
@@ -481,11 +483,15 @@ function! s:cscope_vim_connect_db()
 
     " 3.3) if db exists, connect to it, stop
     if g:cscope_search_case_insensitive == 1
-        exe 'cs add '.l:db_file_name.' '.l:db_prepend.' -C'
-        echo 'cs add '.l:db_file_name.' '.l:db_prepend.' -C'
+        " exe 'cs add '.l:db_file_name.' '.l:db_prepend.' -C'
+        " echo 'cs add '.l:db_file_name.' '.l:db_prepend.' -C'
+        exe 'cs add '.l:db_file_name.' '.substitute(l:db_prepend,'#','\\#','g').' -C'
+        echo 'cs add '.l:db_file_name.' '.substitute(l:db_prepend,'#','\\#','g').' -C'
     else
-        exe 'cs add '.l:db_file_name.' '.l:db_prepend
-        echo 'cs add '.l:db_file_name.' '.l:db_prepend
+        " exe 'cs add '.l:db_file_name.' '.l:db_prepend
+        " echo 'cs add '.l:db_file_name.' '.l:db_prepend
+        exe 'cs add '.l:db_file_name.' '.substitute(l:db_prepend,'#','\\#','g')
+        echo 'cs add '.l:db_file_name.' '.substitute(l:db_prepend,'#','\\#','g')
     endif
 
     " 3.4) check db connection status
